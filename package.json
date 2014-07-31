@@ -13,6 +13,7 @@
   "author": "James Wang <info@slickage.com>",
   "license": "MIT",
   "dependencies": {
-    "yargs": "^1.2.6"
+    "commander": "^2.3.0",
+    "replify": "^1.2.0"
   }
 }
