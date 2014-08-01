@@ -1,15 +1,9 @@
 
---create
-Creates database from /server/config. Defaults to 'epoch'
+  Usage: epoch [options]
 
---recreate
-Use with caution! Deletes and creates database from same parameters as --create
+  Options:
 
---update
-Pushes database update. (Updates ddoc for CouchDB.)
-
---seed
-Seeds database with test data.
-
--i, --import <importer>
-Imports via /importers/<importer>. Edit importers as needed.
+    -h, --help     output usage information
+    -V, --version  output the version number
+    -q, --query    Query
+    -i, --import   Import from...
