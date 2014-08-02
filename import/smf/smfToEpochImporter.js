@@ -1,12 +1,11 @@
 var through2 = require('through2');
-var epochBoardStream = require('./epochBoardStream');
-var epochThreadStream = require('./epochThreadStream');
-var epochPostStream = require('./epochPostStream');
-var boards = require('../core/boards.js');
-var posts = require('../core/posts.js');
-var lolipop = require('../lolipop/lolipop');
-var lpConfig = require('./config.json');
-var lp = lolipop(lpConfig);
+var epochBoardStream = require(__dirname + '/smfToEpochStream/epochBoardStream');
+var epochThreadStream = require(__dirname + '/smfToEpochStream/epochThreadStream');
+var epochPostStream = require(__dirname + '/smfToEpochStream/epochPostStream');
+var core = require('../../../core');
+var mysqlQuerier = require(__dirname + '/mysqlQuerier/mysqlQuerier');
+var mQConfig = require(__dirname + '/config.json');
+var mQ = mysqlQuerier(mQConfig);
 
 var async = require('async');
 var concurrency = Number.MAX_VALUE; // Concurrency handled by lolipop
@@ -16,18 +15,18 @@ var asyncQueue = async.queue(function (runTask, callback) {
 }, concurrency);
 
 asyncQueue.drain = function () {
-  lp.end(function () {
+  mQ.end(function () {
     console.log('Import complete.');
   });
 }
 
 asyncQueue.push(function (asyncBoardCb) {
 
-  var ebs = epochBoardStream(lp);
+  var ebs = epochBoardStream(mQ);
   var boardStream = ebs.createBoardStream(null);
 
   boardStream.pipe(through2.obj(function (boardObject, enc, trBoardCb) {
-    boards.import(boardObject, function (err, newBoard) {
+    core.boards.import(boardObject, function (err, newBoard) {
       if (err) {
         error(err);
       }
@@ -39,11 +38,11 @@ asyncQueue.push(function (asyncBoardCb) {
         var oldBoardId = newBoard.smf.board_id;
         console.log('boardId: '+oldBoardId);
         var newBoardId = newBoard.id;
-        var ets = epochThreadStream(lp);
+        var ets = epochThreadStream(mQ);
         var threadStream = ets.createThreadStream(null, oldBoardId, newBoardId);
 
         threadStream.pipe(through2.obj(function (threadObject, enc, trThreadCb) {
-          posts.import(threadObject, function (err, newThread) {
+          core.posts.import(threadObject, function (err, newThread) {
             if (err) {
               error(err);
             }
@@ -55,11 +54,11 @@ asyncQueue.push(function (asyncBoardCb) {
               var oldThreadId = newThread.smf.thread_id;
               console.log('threadId: '+oldThreadId);
               var newThreadId = newThread.thread_id;
-              var eps = epochPostStream(lp);
+              var eps = epochPostStream(mQ);
               var postStream = eps.createPostStream(null, oldThreadId, newThreadId);
 
               postStream.pipe(through2.obj(function (postObject, enc, trPostCb) {
-                posts.import(postObject, function (err, newPost) {
+                core.posts.import(postObject, function (err, newPost) {
                   if (err) {
                     error(err);
                   }

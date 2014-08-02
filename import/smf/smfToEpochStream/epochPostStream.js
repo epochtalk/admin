@@ -1,11 +1,11 @@
-var epochMap = require('./epochMap.js');
+var epochMap = require(__dirname + '/epochMap');
 var through2 = require('through2');
 
-var EpochPostStream = module.exports = function EpochPostStream(lp) {
+var EpochPostStream = module.exports = function EpochPostStream(mQ) {
   if (!(this instanceof EpochPostStream)) {
-    return new EpochPostStream(lp);
+    return new EpochPostStream(mQ);
   }
-  this.lp = lp;
+  this.mQ = mQ;
 }
 
 EpochPostStream.prototype.createPostStream = function (err, oldThreadId, newThreadId) {
@@ -19,7 +19,7 @@ EpochPostStream.prototype.createPostStream = function (err, oldThreadId, newThre
     ID_MSG : 'post_id'
   }
 
-  var rowStreamWhere = this.lp.createRowStreamWhere(null, table, { ID_TOPIC : oldThreadId});
+  var rowStreamWhere = this.mQ.createRowStreamWhere(null, table, { ID_TOPIC : oldThreadId});
   var tr = through2.obj(function (row, enc, cb) {
     var obj = epochMap.remapObject(row, tableMap);
     // Handling for created_at

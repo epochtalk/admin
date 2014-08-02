@@ -1,11 +1,11 @@
-var epochMap = require('./epochMap.js');
+var epochMap = require(__dirname + '/epochMap');
 var through2 = require('through2');
 
-var EpochThreadStream = module.exports = function EpochThreadStream(lp) {
+var EpochThreadStream = module.exports = function EpochThreadStream(mQ) {
   if (!(this instanceof EpochThreadStream)) {
-    return new EpochThreadStream(lp);
+    return new EpochThreadStream(mQ);
   }
-  this.lp = lp;
+  this.mQ = mQ;
 }
 
 EpochThreadStream.prototype.createThreadStream = function (err, oldBoardId, newBoardId) {
@@ -16,7 +16,7 @@ EpochThreadStream.prototype.createThreadStream = function (err, oldBoardId, newB
     ID_FIRST_MSG : 'post_id'
   }
 
-  var rowStreamWhere = this.lp.createRowStreamWhere(null, table, { ID_BOARD : oldBoardId});
+  var rowStreamWhere = this.mQ.createRowStreamWhere(null, table, { ID_BOARD : oldBoardId});
   var tr = through2.obj(function (row, enc, cb) {
     var obj = { board_id : newBoardId };
     var smfObject = epochMap.remapObject(row, smfMap);

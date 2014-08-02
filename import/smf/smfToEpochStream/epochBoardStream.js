@@ -1,11 +1,11 @@
-var epochMap = require('./epochMap.js');
+var epochMap = require(__dirname + '/epochMap');
 var through2 = require('through2');
 
-var EpochBoardStream = module.exports = function EpochBoardStream(lp) {
+var EpochBoardStream = module.exports = function EpochBoardStream(mQ) {
   if (!(this instanceof EpochBoardStream)) {
-    return new EpochBoardStream(lp);
+    return new EpochBoardStream(mQ);
   }
-  this.lp = lp;
+  this.mQ = mQ;
 }
 
 EpochBoardStream.prototype.createBoardStream = function (err) {
@@ -19,7 +19,7 @@ EpochBoardStream.prototype.createBoardStream = function (err) {
     ID_BOARD : 'board_id'
   }
 
-  var rowStream = this.lp.createRowStream(null, table);
+  var rowStream = this.mQ.createRowStream(null, table);
   var tr = through2.obj(function (row, enc, cb) {
     var obj = epochMap.remapObject(row, tableMap);
     var smfObject = epochMap.remapObject(row, smfMap);
