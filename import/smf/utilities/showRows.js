@@ -1,13 +1,13 @@
-var lolipop = require('../../lolipop/lolipop');
+var mysqlQuerier = require('../mysqlQuerier/mysqlQuerier');
 var config = require('../config.json');
-var lp = lolipop(config);
+var mQ = mysqlQuerier(config);
+var through2 = require('through2');
 
-rowStream = lp.createRowStream(null, process.argv[2]);
-rowStream.on('error', function (err) {
-  console.log('Error');
-})
-.on('result', function (row) {
+rowStream = mQ.createRowStream(null, process.argv[2]);
+rowStream.pipe(through2.obj(function (row, enc, cb) {
   console.log(row);
-});
-
-lp.end();
+  cb();
+},
+function () {
+  mQ.end();
+}));

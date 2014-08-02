@@ -1,13 +1,13 @@
-var lolipop = require('../../lolipop/lolipop');
+var mysqlQuerier = require('../mysqlQuerier/mysqlQuerier');
 var config = require('../config.json');
-lp = lolipop(config);
+mQ = mysqlQuerier(config);
 
-lp.getColumns(null, process.argv[2], function (err, columns) {
+mQ.getColumns(null, process.argv[2], function (err, columns) {
   if (err) {
     console.log(err);
   }
   columns.forEach(function (column) {
     console.log(column.Field);
   });
+  mQ.end();
 });
-lp.end();

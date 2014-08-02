@@ -1,9 +1,9 @@
-var lolipop = require('../../lolipop/lolipop');
+var mysqlQuerier = require('../mysqlQuerier/mysqlQuerier');
 var config = require('../config.json');
-var lp = lolipop(config);
+var mQ = mysqlQuerier(config);
 
-lp.getTables(null, function (err, tables) {
+mQ.getTables(null, function (err, tables) {
   if (err) throw err;
   console.log(tables);
+  mQ.end();
 });
-lp.end();
