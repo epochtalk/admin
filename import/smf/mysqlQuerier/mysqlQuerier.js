@@ -1,13 +1,13 @@
 var mysql = require('mysql');
 
-var Lolipop = module.exports = function Lolipop(config) {
-  if (!(this instanceof Lolipop)) {
-    return new Lolipop(config);
+var MysqlQuerier = module.exports = function MysqlQuerier(config) {
+  if (!(this instanceof MysqlQuerier)) {
+    return new MysqlQuerier(config);
   }
   this.pool = mysql.createPool(config);
 }
 
-Lolipop.prototype.getTables = function (err, callback) {
+MysqlQuerier.prototype.getTables = function (err, callback) {
   if (err) {
     return callback(err);
   }
@@ -22,7 +22,7 @@ Lolipop.prototype.getTables = function (err, callback) {
   });
 }
 
-Lolipop.prototype.getColumns = function (err, table, callback) {
+MysqlQuerier.prototype.getColumns = function (err, table, callback) {
   if (err) {
     return callback(err);
   }
@@ -34,15 +34,15 @@ Lolipop.prototype.getColumns = function (err, table, callback) {
   });
 }
 
-Lolipop.prototype.createRowStream = function (err, table) {
+MysqlQuerier.prototype.createRowStream = function (err, table) {
   return this.pool.query('SELECT * FROM ' + mysql.escapeId(table)).stream();
 }
 
-Lolipop.prototype.createRowStreamWhere = function (err, table, obj) {
+MysqlQuerier.prototype.createRowStreamWhere = function (err, table, obj) {
   return this.pool.query('SELECT * FROM ' + mysql.escapeId(table) + ' WHERE ' + mysql.escape(obj)).stream();
 }
 
-Lolipop.prototype.end = function (callback) {
+MysqlQuerier.prototype.end = function (callback) {
   if (callback && typeof(callback) === "function") {
     this.pool.end(callback());
   }

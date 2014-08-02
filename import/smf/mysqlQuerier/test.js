@@ -1,12 +1,12 @@
-var lolipop = require('./lolipop');
+var mysqlQuerier = require('./mysqlQuerier');
 var config = require('./config.json');
-var lp = lolipop(config);
+var mQ = mysqlQuerier(config);
 var async = require('async');
 var through2 = require('through2');
 
 var tests = {
   getTables: function (callback) {
-           lp.getTables(null, function (err, tables) {
+           mQ.getTables(null, function (err, tables) {
              if (err) {
                throw err;
              }
@@ -16,7 +16,7 @@ var tests = {
            });
          },
   getColumns: function (callback) {
-            lp.getColumns(null, 'test_table', function (err, columns) {
+            mQ.getColumns(null, 'test_table', function (err, columns) {
               if (err) {
                 throw err;
               }
@@ -27,7 +27,7 @@ var tests = {
             });
           },
   rowStream: function (callback) {
-           var rowStream = lp.createRowStream(null, 'test_table');
+           var rowStream = mQ.createRowStream(null, 'test_table');
            var rowStreamT2 = through2.obj(function (row, enc, cb) {
              console.log('testRowStream: ');
              console.log(row.percent);
@@ -40,7 +40,7 @@ var tests = {
          },
 
   rowStreamWhere: function (callback) {
-            var rowStreamWhere = lp.createRowStreamWhere(null, 'test_table', { percent: 10 });
+            var rowStreamWhere = mQ.createRowStreamWhere(null, 'test_table', { percent: 10 });
             var rowStreamWhereT2 = through2.obj(function (row, enc, cb) {
               console.log('testRowStreamWhere: ' + row.percent);
               cb();
@@ -53,5 +53,5 @@ var tests = {
 }
 
 async.parallel(tests, function (err, results) {
-  lp.end();
+  mQ.end();
 });
