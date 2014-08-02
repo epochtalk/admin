@@ -13,7 +13,10 @@
   "author": "James Wang <info@slickage.com>",
   "license": "MIT",
   "dependencies": {
+    "async": "^0.9.0",
     "commander": "^2.3.0",
-    "replify": "^1.2.0"
+    "mysql": "^2.4.1",
+    "replify": "^1.2.0",
+    "through2": "^0.5.1"
   }
 }
