@@ -9,13 +9,14 @@ program
   .version('0.0.1')
   .option('-q, --query', 'Query')
   .option('-i, --import [importer]', 'Import from...')
+  .option('-d, --debug', 'Include debug messages')
   .parse(process.argv);
 
 var query = require(path.join(__dirname, 'query')); 
 var imp = require(path.join(__dirname, 'import'));
 
 if (program.query) query(program.query);
-else if (program.import) imp(program.import);
+else if (program.import) imp(program.import, program.debug);
 else {
   program.help();
 }
