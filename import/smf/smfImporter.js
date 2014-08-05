@@ -3,7 +3,7 @@ module.exports = function smfImporter(debug, topCallback) {
   var epochBoardStream = require(__dirname + '/smfToEpochStream/epochBoardStream');
   var epochThreadStream = require(__dirname + '/smfToEpochStream/epochThreadStream');
   var epochPostStream = require(__dirname + '/smfToEpochStream/epochPostStream');
-  var core = require('core');
+  var core = require('epochcore');
   var mysqlQuerier = require(__dirname + '/mysqlQuerier/mysqlQuerier');
   var mQConfig = require(__dirname + '/config.json');
   var mQ = mysqlQuerier(mQConfig);
@@ -32,7 +32,7 @@ module.exports = function smfImporter(debug, topCallback) {
     boardStream.pipe(through2.obj(function (boardObject, enc, trBoardCb) {
       core.boards.import(boardObject, function (err, newBoard) {
         if (err) {
-          error(err);
+          console.log(err);
         }
 
         trBoardCb();  // Don't return.  Async will handle end.
@@ -50,7 +50,7 @@ module.exports = function smfImporter(debug, topCallback) {
           threadStream.pipe(through2.obj(function (threadObject, enc, trThreadCb) {
             core.posts.import(threadObject, function (err, newThread) {
               if (err) {
-                error(err);
+                console.log(err);
               }
 
               trThreadCb();  // Don't return.  Async will handle end.
@@ -68,7 +68,7 @@ module.exports = function smfImporter(debug, topCallback) {
                 postStream.pipe(through2.obj(function (postObject, enc, trPostCb) {
                   core.posts.import(postObject, function (err, newPost) {
                     if (err) {
-                      error(err);
+                      console.log(err);
                     }
 
                     trPostCb();  // Don't return.  Async will handle end.
