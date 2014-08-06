@@ -62,21 +62,27 @@ module.exports = function smfImporter(debug, topCallback) {
                   console.log('threadId: '+oldThreadId);
                 }
                 var newThreadId = newThread.thread_id;
+                var firstPostId = newThread.smf.post_id;
                 var eps = epochPostStream(mQ);
                 var postStream = eps.createPostStream(null, oldThreadId, newThreadId);
 
                 postStream.pipe(through2.obj(function (postObject, enc, trPostCb) {
-                  core.posts.import(postObject, function (err, newPost) {
-                    if (err) {
-                      console.log(err);
-                    }
+                  if (postObject.smf.post_id === firstPostId) {
+                    return trPostCb();  // Don't return.  Async will handle end.
+                  }
+                  else {
+                    core.posts.import(postObject, function (err, newPost) {
+                      if (err) {
+                        console.log(err);
+                      }
 
-                    trPostCb();  // Don't return.  Async will handle end.
+                      trPostCb();  // Don't return.  Async will handle end.
 
-                    if (debug) {
-                      console.log('postId: '+newPost.smf.post_id);
-                    }
-                  });
+                      if (debug) {
+                        console.log('postId: '+newPost.smf.post_id);
+                      }
+                    });
+                  }
                 }, asyncPostCb));  // When stream is empty, worker is done
               });
             });
