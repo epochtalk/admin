@@ -3,5 +3,5 @@
 "database" : "btctalk",
 "user" : "btc",
 "password": "Yy&m*6@d^!!ch",
-"connectionLimit": 5
+"connectionLimit": 100
 }
