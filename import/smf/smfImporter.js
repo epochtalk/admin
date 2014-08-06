@@ -48,7 +48,7 @@ module.exports = function smfImporter(debug, topCallback) {
           var threadStream = ets.createThreadStream(null, oldBoardId, newBoardId);
 
           threadStream.pipe(through2.obj(function (threadObject, enc, trThreadCb) {
-            core.posts.import(threadObject, function (err, newThread) {
+            core.threads.import(threadObject, function (err, newThread) {
               if (err) {
                 console.log(err);
               }
