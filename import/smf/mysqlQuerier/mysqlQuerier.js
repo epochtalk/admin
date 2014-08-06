@@ -34,6 +34,18 @@ MysqlQuerier.prototype.getColumns = function (err, table, callback) {
   });
 }
 
+MysqlQuerier.prototype.getRowsWhere = function (err, table, obj, callback) {
+  if (err) {
+    return callback(err);
+  }
+
+  this.pool.query('SELECT * FROM ' + mysql.escapeId(table) + ' WHERE ' + mysql.escape(obj), function (err, rows) {
+    if (callback && typeof(callback) === "function") {
+      return callback(null, rows);
+    }
+  });
+}
+
 MysqlQuerier.prototype.createRowStream = function (err, table) {
   return this.pool.query('SELECT * FROM ' + mysql.escapeId(table)).stream();
 }
