@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^2.3.0",
-    "importer-smf": "git+ssh://github.com/epochtalk/importer-smf",
+    "smfImporter": "git+ssh://git@github.com:epochtalk/importer-smf.git",
     "replify": "^1.2.0"
   }
 }
