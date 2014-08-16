@@ -12,7 +12,7 @@ program
   .option('--leveldb <path>', 'Path to leveldb (default: ./epoch.db)')
   .parse(process.argv);
 
-var query = require(path.join(__dirname, 'query')); 
+var query = require(path.join(__dirname, 'query'));
 var imp = require(path.join(__dirname, 'import'));
 
 if (program.query) query(program.query);
