@@ -7,7 +7,7 @@ var program = require('commander');
 program
   .version('0.0.1')
   .option('-q, --query', 'Query')
-  .option('-d, --debug', 'Include debug messages')
+  .option('--debug', 'Include debug messages')
   .option('-m, --migrate <type>', 'Migrate from database of <type>')
   .option('--leveldb <path>', 'Path to leveldb (default: ./epoch.db)')
   .parse(process.argv);
