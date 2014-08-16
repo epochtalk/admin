@@ -18,7 +18,7 @@ var imp = require(path.join(__dirname, 'import'));
 if (program.query) query(program.query);
 else if (program.migrate) imp(program.migrate, {
   debug: program.debug,
-  leveldbPath: program.leveldb || path.join(__dirname, 'epoch.db')
+  leveldbPath: program.leveldb || path.join(__dirname)
 });
 else {
   program.help();
