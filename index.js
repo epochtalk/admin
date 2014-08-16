@@ -1,7 +1,6 @@
 var path = require('path');
 var fs = require('fs');
 var replify = require('replify');
-// var core = require(path.join(__dirname, '../core'));
 
 var usage = fs.readFileSync(path.join(__dirname, '/usage'), 'utf-8');
 var program = require('commander');
