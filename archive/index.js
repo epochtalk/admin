@@ -4,6 +4,7 @@ var zlib = require('zlib');
 var tar = require('tar');
 var request = require('request');
 var path = require('path');
+var ProgressBar = require('progress');
 
 function backup(dbPath) {
   if (!fs.existsSync(dbPath)) {
@@ -30,28 +31,45 @@ function backup(dbPath) {
   });
 }
 
-function restore(tarballPath) { // TODO
-  var tarball, dest;
-  if (fs.existsSync(tarballPath)) { // zipPath is a path
+function restore(tarballPath) {
+  var tarball, filename;
+  var regexUrl = new RegExp('^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?(\.tar\.gz)$');
+
+  if (fs.existsSync(tarballPath)) {
     tarball = fs.createReadStream(tarballPath);
-    dest = tarballPath.replace('.tar.gz', '');
+    filename = path.basename(tarballPath);
   }
-  else if (tarballPath.indexOf('http') > -1 && tarballPath.indexOf('.tar.gz') > -1) { // zipPath is a url
-    var downloadedBytes = 0;
-    var filename = tarballPath.split('/');
-    filename = filename[filename.length-1];
-    tarball = request(tarballPath)
-    .on('data', function(bytes) {
-      downloadedBytes += bytes.length;
-      var fileSize = this.response.headers['content-length'];
-      var percentage = Number(downloadedBytes/fileSize * 100).toFixed(2);
-      process.stdout.write('Downloading ' + percentage + '%\r');
+  else if (regexUrl.test(tarballPath)) { // zipPath is a url
+    tarball = request(tarballPath);
+    var progressBar;
+
+    tarball.on('response', function(res) {
+      if (res.statusCode === 200) {
+        progressBar = new ProgressBar('Downloading [:bar] :percent :etas', {
+          complete: '=',
+          incomplete: ' ',
+          width: 40,
+          total: parseInt(res.headers['content-length'], 10)
+        });
+      }
+      else {
+        console.log(res.statusCode + ' ERROR: ' + tarballPath + ' is an invalid URL.');
+        return process.exit(1);
+      }
     });
-    dest = path.join('.', filename.replace('.tar.gz', ''));
+
+    tarball.on('data', function(bytes) {
+      progressBar.tick(bytes.length);
+    });
+
+    filename = tarballPath.split('/');
+    filename = filename[filename.length-1];
   }
   else {
-    return console.log('Path or URL does not exist.');
+    return console.log('Invalid Path/URL');
   }
+
+  var dest = path.join('.', filename.replace('.tar.gz', ''));
   tarball.on('error', console.log)
   .pipe(zlib.Unzip())
   .pipe(tar.Extract({ path: dest }))
