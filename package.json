@@ -18,6 +18,6 @@
     "replify": "^1.2.0",
     "request": "^2.40.0",
     "smf-import": "git+ssh://git@github.com:epochtalk/importer-smf.git",
-    "tar": "^1.0.0",
+    "tar": "^1.0.0"
   }
 }
