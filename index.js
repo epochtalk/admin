@@ -5,6 +5,7 @@ program
   .option('-q, --query', 'Query')
   .option('-b, --backup <path>', 'Backup database at <path>')
   .option('-r, --restore <path/url>', 'Restore database from backup at <path/url>')
+  .option('--seed', 'Seed database with test data (Developer)')
   .option('--debug', 'Include debug messages')
   .option('--verbose [verbosity]', 'Specify verbosity')
   .option('-m, --migrate <type>', 'Migrate from database of <type>')
@@ -20,6 +21,7 @@ var genericArgs = {
 var query = require(path.join(__dirname, 'query'));
 var imp = require(path.join(__dirname, 'import'));
 var archive = require(path.join(__dirname, 'archive'));
+var developer = require(path.join(__dirname, 'developer'));
 
 if (program.query) {
   query(program.query);
@@ -32,6 +34,9 @@ else if (program.backup) {
 }
 else if (program.restore) {
   archive.restore(program.restore, genericArgs);
+}
+else if (program.seed) {
+  developer.seed(genericArgs);
 }
 else {
   program.help();

@@ -15,6 +15,7 @@
   "dependencies": {
     "archiver": "^0.10.1",
     "commander": "^2.3.0",
+    "epoch-developer": "git://github.com/unenglishable/turnt-bear",
     "request": "^2.40.0",
     "smf-import": "git+ssh://git@github.com:epochtalk/importer-smf.git",
     "tar": "^1.0.0"
