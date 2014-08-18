@@ -13,8 +13,9 @@
   "author": "James Wang <info@slickage.com>",
   "license": "MIT",
   "dependencies": {
+    "archiver": "^0.10.1",
     "commander": "^2.3.0",
-    "smf-import": "git+ssh://git@github.com:epochtalk/importer-smf.git",
-    "replify": "^1.2.0"
+    "replify": "^1.2.0",
+    "smf-import": "git+ssh://git@github.com:epochtalk/importer-smf.git"
   }
 }
