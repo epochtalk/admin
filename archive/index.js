@@ -1,11 +1,12 @@
 var fs = require('fs');
 var archiver = require('archiver');
-var request = require('request');
 var zlib = require('zlib');
+var tar = require('tar');
+var request = require('request');
 var path = require('path');
 
 function backup(dbPath) {
-  if (!path.existsSync(dbPath)) {
+  if (!fs.existsSync(dbPath)) {
     return console.log('Path does not exist.');
   }
   var zipArchive = archiver('tar', {
@@ -29,18 +30,37 @@ function backup(dbPath) {
   });
 }
 
-function restore(zipPath) { // TODO
-  if (path.existsSync(zipPath)) { // zipPath is a path
-    
+function restore(tarballPath) { // TODO
+  var tarball, dest;
+  if (fs.existsSync(tarballPath)) { // zipPath is a path
+    tarball = fs.createReadStream(tarballPath);
+    dest = tarballPath.replace('.tar.gz', '');
   }
-  else if (zipPath.indexOf('http') > -1) { // zipPath is a url
-    var zipUrl = zipPath;
-
+  else if (tarballPath.indexOf('http') > -1 && tarballPath.indexOf('.tar.gz') > -1) { // zipPath is a url
+    var downloadedBytes = 0;
+    var filename = tarballPath.split('/');
+    filename = filename[filename.length-1];
+    tarball = request(tarballPath)
+    .on('data', function(bytes) {
+      downloadedBytes += bytes.length;
+      var fileSize = this.response.headers['content-length'];
+      var percentage = Number(downloadedBytes/fileSize * 100).toFixed(2);
+      process.stdout.write('Downloading ' + percentage + '%\r');
+    });
+    dest = path.join('.', filename.replace('.tar.gz', ''));
   }
   else {
-    console.log('Path or URL does not exist.');
+    return console.log('Path or URL does not exist.');
   }
-  console.log('Restored: ' + zipPath);
+  tarball.on('error', console.log)
+  .pipe(zlib.Unzip())
+  .pipe(tar.Extract({ path: dest }))
+  .on('end', function(err) {
+    if (err) {
+      console.log(err);
+    }
+    console.log('Restored: ' + dest + ' from: ' + tarballPath);
+  });
 }
 
 module.exports = {
