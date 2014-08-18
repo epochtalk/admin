@@ -1,14 +1,10 @@
 var path = require('path');
-var fs = require('fs');
-var replify = require('replify');
-
-var usage = fs.readFileSync(path.join(__dirname, '/usage'), 'utf-8');
 var program = require('commander');
 program
   .version('0.0.1')
   .option('-q, --query', 'Query')
   .option('-b, --backup <path>', 'Backup database at <path>')
-  .option('-r, --restore <path>', 'Restore database from backup at <path>')
+  .option('-r, --restore <path/url>', 'Restore database from backup at <path/url>')
   .option('--debug', 'Include debug messages')
   .option('-m, --migrate <type>', 'Migrate from database of <type>')
   .option('--leveldb <path>', 'Path to leveldb (default: ./epoch.db)')
