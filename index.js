@@ -21,6 +21,7 @@ var genericArgs = {
 var query = require(path.join(__dirname, 'query'));
 var imp = require(path.join(__dirname, 'import'));
 var archive = require(path.join(__dirname, 'archive'));
+var developer = require(path.join(__dirname, 'developer'));
 
 if (program.query) {
   query(program.query);
@@ -35,7 +36,6 @@ else if (program.restore) {
   archive.restore(program.restore, genericArgs);
 }
 else if (program.seed) {
-  var developer = require(path.join(__dirname, 'developer'));
   developer.seed(genericArgs);
 }
 else {
