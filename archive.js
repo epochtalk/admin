@@ -42,7 +42,7 @@ function restore(tarballPath) {
     tarball = fs.createReadStream(tarballPath);
     filename = path.basename(tarballPath);
   }
-  else if (regexUrl.test(tarballPath)) { // zipPath is a url
+  else if (regexUrl.test(tarballPath)) {
     tarball = request({ url: tarballPath, gzip: true });
     var progressBar;
 
