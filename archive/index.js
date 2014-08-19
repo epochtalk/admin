@@ -6,7 +6,10 @@ var request = require('request');
 var path = require('path');
 var ProgressBar = require('progress');
 
-function backup(dbPath) {
+function backup(dbPath, args) {
+  if (dbPath === true) {
+    dbPath = args.db;
+  }
   if (!fs.existsSync(dbPath)) {
     return console.log('Path does not exist.');
   }
@@ -33,14 +36,14 @@ function backup(dbPath) {
 
 function restore(tarballPath) {
   var tarball, filename;
-  var regexUrl = new RegExp('^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_\+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?(\.tar\.gz)$');
+  var regexUrl = new RegExp('^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?(.tar.gz)$');
 
   if (fs.existsSync(tarballPath)) {
     tarball = fs.createReadStream(tarballPath);
     filename = path.basename(tarballPath);
   }
   else if (regexUrl.test(tarballPath)) { // zipPath is a url
-    tarball = request(tarballPath);
+    tarball = request({ url: tarballPath, gzip: true });
     var progressBar;
 
     tarball.on('response', function(res) {
@@ -77,7 +80,9 @@ function restore(tarballPath) {
     if (err) {
       console.log(err);
     }
-    console.log('Restored: ' + dest + ' from: ' + tarballPath);
+    else {
+      console.log('Restored: ' + dest + ' from: ' + tarballPath);
+    }
   });
 }
 
