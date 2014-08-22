@@ -26,6 +26,17 @@ var generateBoard = function() {
   return board;
 };
 
+var generateThread = function(boardId) {
+  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 1));
+  words[0] = Charlatan.Helpers.capitalize(words[0]);
+  var title = words.join(' ');
+  var thread = {
+    title: title,
+    board_id: boardId,
+  };
+  return thread;
+};
+
 var generatePost = function(authorId, previousPostTime, threadId, boardId) {
   var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 1));
   words[0] = Charlatan.Helpers.capitalize(words[0]);
@@ -77,6 +88,7 @@ function seedBoards(users, parentBoard, seedBoardsCallback) {
         process.stdout.write('Generating Boards: ' + createdBoard.id + '\r');
         if (parentBoard) {
           boards.push(createdBoard);
+          parentBoard.children_ids = parentBoard.children_ids ? parentBoard.children_ids : [];
           parentBoard.children_ids.push(createdBoard.id);
           boardsCore.update(parentBoard)
           .then(function() {
@@ -117,7 +129,7 @@ function seedPosts(board, users, thread, seedPostsCallback) {
       return i < postCount;
     },
     function (cb) {
-      var post;
+      var post, threadObj;
       if (thread) { // sub level post
         post = generatePost(null, thread.created_at, thread.thread_id);
         posts.create(post)
@@ -136,19 +148,17 @@ function seedPosts(board, users, thread, seedPostsCallback) {
           cb(err);
         });
       }
-      else { // top level post
-        post = generatePost(null, board.created_at, null, board.id);
-        threads.create(post)
+      else { // create thread
+        threadObj = generateThread(board.id);
+        threads.create(threadObj)
+        .then(function(createdThread) {
+          return generatePost(null, board.created_at, createdThread.id);
+        })
+        .then(posts.create)
         .then(function(createdPost) {
           process.stdout.write('Generating Post: ' + createdPost.id + '\r');
-          if (thread) {
-            i++;
-            cb();
-          }
-          else {
-            i++;
-            seedPosts(null, users, createdPost, cb);
-          }
+          i++;
+          seedPosts(null, users, createdPost, cb);
         })
         .catch(function(err) {
           cb(err);
