@@ -15,7 +15,7 @@ function randomDate(start, end) {
 }
 
 var generateBoard = function() {
-  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 1));
+  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 4));
   words[0] = Charlatan.Helpers.capitalize(words[0]);
   var name = words.join(' ');
   var description = Charlatan.Lorem.paragraph(Charlatan.Helpers.rand(10, 3));
@@ -27,18 +27,14 @@ var generateBoard = function() {
 };
 
 var generateThread = function(boardId) {
-  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 1));
-  words[0] = Charlatan.Helpers.capitalize(words[0]);
-  var title = words.join(' ');
   var thread = {
-    title: title,
     board_id: boardId,
   };
   return thread;
 };
 
 var generatePost = function(authorId, previousPostTime, threadId, boardId) {
-  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 1));
+  var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 4));
   words[0] = Charlatan.Helpers.capitalize(words[0]);
   var title = words.join(' ');
   var paragraphCount = Charlatan.Helpers.rand(10, 1);
