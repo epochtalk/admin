@@ -3,12 +3,14 @@ var async = require('async');
 var seed = {};
 var core = require('epochcore')();
 var boardsCore = core.boards;
-var threads = core.threads;
-var posts = core.posts;
+var threadsCore = core.threads;
+var postsCore = core.posts;
+var usersCore = core.users;
 module.exports = seed;
 
 var numBoards = 15;
 var maxPosts = 50;
+var numUsers = 25;
 
 function randomDate(start, end) {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
@@ -26,6 +28,19 @@ var generateBoard = function() {
   return board;
 };
 
+var generateUser = function() {
+  var name = Charlatan.Internet.userName();
+  var email = Charlatan.Internet.freeEmail(name);
+  var password = 'epochtalk';
+  var user = {
+    username: name,
+    email: email,
+    password: password,
+    confirmation: password,
+  };
+  return user;
+};
+
 var generateThread = function(boardId) {
   var thread = {
     board_id: boardId,
@@ -33,7 +48,7 @@ var generateThread = function(boardId) {
   return thread;
 };
 
-var generatePost = function(authorId, previousPostTime, threadId, boardId) {
+var generatePost = function(userId, previousPostTime, threadId, boardId) {
   var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 4));
   words[0] = Charlatan.Helpers.capitalize(words[0]);
   var title = words.join(' ');
@@ -51,6 +66,7 @@ var generatePost = function(authorId, previousPostTime, threadId, boardId) {
   var post = {
     title: title,
     body: body,
+    user_id: userId
   };
   if (boardId) {
     post.board_id = boardId;
@@ -60,6 +76,33 @@ var generatePost = function(authorId, previousPostTime, threadId, boardId) {
   }
   return post;
 };
+
+function seedUsers(seedUsersCallback) {
+  var users = [];
+  var i = 0;
+  async.whilst(
+    function() {
+      return i < numUsers;
+    },
+    function (cb) {
+      var user = generateUser();
+      usersCore.create(user)
+      .then(function(createdUser) {
+        user.id = createdUser.id;
+        process.stdout.write('Generating Users: ' + user.id + '\r');
+        users.push(user);
+        i++;
+        cb();
+      });
+    },
+    function (err) {
+      if (err) {
+        console.log('Error generating users.');
+      }
+      seedUsersCallback(err, users);
+    }
+  );
+}
 
 function seedBoards(users, parentBoard, seedBoardsCallback) {
   if (parentBoard) {
@@ -126,19 +169,14 @@ function seedPosts(board, users, thread, seedPostsCallback) {
     },
     function (cb) {
       var post, threadObj;
+      var userId = Charlatan.Helpers.sample(users).id;
       if (thread) { // sub level post
-        post = generatePost(null, thread.created_at, thread.thread_id);
-        posts.create(post)
+        post = generatePost(userId, thread.created_at, thread.thread_id);
+        postsCore.create(post)
         .then(function(createdPost) {
           process.stdout.write('Generating Post: ' + createdPost.id + '\r');
-          if (thread) {
-            i++;
-            cb();
-          }
-          else {
-            i++;
-            seedPosts(null, users, createdPost, cb);
-          }
+          i++;
+          cb();
         })
         .catch(function(err) {
           cb(err);
@@ -146,11 +184,11 @@ function seedPosts(board, users, thread, seedPostsCallback) {
       }
       else { // create thread
         threadObj = generateThread(board.id);
-        threads.create(threadObj)
+        threadsCore.create(threadObj)
         .then(function(createdThread) {
-          return generatePost(null, board.created_at, createdThread.id);
+          return generatePost(userId, board.created_at, createdThread.id);
         })
-        .then(posts.create)
+        .then(postsCore.create)
         .then(function(createdPost) {
           process.stdout.write('Generating Post: ' + createdPost.id + '\r');
           i++;
@@ -201,8 +239,12 @@ function seedTopLevelPosts(boards, users, seedTopLevelPostsCallback) {
 seed.seed = function() {
   async.waterfall([
       function(cb) {
+        console.log('Seeding users.');
+        seedUsers(cb);
+      },
+      function(users, cb) {
         console.log('\nSeeding boards.');
-        seedBoards(null, null, cb);
+        seedBoards(users, null, cb);
       },
       function(boards, users, cb) {
         console.log('\nSeeding posts.');
