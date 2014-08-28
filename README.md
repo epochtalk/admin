@@ -22,8 +22,12 @@ The migrate utility connects to an exsiting forum database and converts the data
 for import into EpochTalk format.  The mandatory ```<type>``` specifies the type
 of database from which to read data.  The ```--debug``` argument can be suppied
 to allow command line debugging of the import.
-Currently supported types are:
-SMF (Simple Machine Forum); implemented in mysql.
+
+### Currently supported forum types:
+
+Forum Type | Database type
+-----------|--------------
+SMF (Simple Machine Forum) | mysql
 
 ## Backup
 The backup utility can be used to backup the EpochTalk database into a ```tar.gz``` file. The provided ```[path]``` should be a path to the leveldb directory ```(e.g. ~/some/path/database.db)```, if no path is provided the default is the ```epoch.db``` in the current working directory.
