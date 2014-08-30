@@ -18,10 +18,11 @@ Options:
   --leveldb <path>          Path to leveldb (default: ./epoch.db)
 ```
 ## Migrate
-The migrate utility connects to an exsiting forum database and converts the data
-for import into EpochTalk format.  The mandatory ```<type>``` specifies the type
-of database from which to read data.  The ```--debug``` argument can be suppied
-to allow command line debugging of the import.
+The migrate utility connects to an exsiting non-EpochTalk forum database and
+converts the data for import into EpochTalk format.  The mandatory
+```<type>``` specifies the type of database from which to read data.  The
+```--debug``` argument can be suppied to allow command line debugging of the
+import.
 
 ### Currently supported forum types:
 
