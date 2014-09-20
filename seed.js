@@ -2,6 +2,7 @@ var Charlatan = require('charlatan');
 var async = require('async');
 var seed = {};
 var core = require('epochcore')();
+var _ = require('lodash');
 var boardsCore = core.boards;
 var threadsCore = core.threads;
 var postsCore = core.posts;
@@ -15,6 +16,49 @@ var numUsers = 25;
 function randomDate(start, end) {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
+
+var generateCategories = function(boards) {
+  var boardIds = [];
+  boards.forEach(function(board) {
+    boardIds.push(board.id);
+  });
+
+  var groupSize = 3;
+
+  var groups = _.map(boardIds, function(item, index){
+
+    return index % groupSize === 0 ? boardIds.slice(index, index + groupSize) : null;
+    })
+    .filter(function(item){ return item;
+
+  });
+
+  var randomCat = function () {
+    return Charlatan.Helpers.capitalize(Charlatan.Lorem.words(Charlatan.Helpers.rand(5, 3)).join(' '));
+  };
+
+  var categories = [{
+    name: randomCat(),
+    board_ids: groups[0]
+  },
+  {
+    name: randomCat(),
+    board_ids: groups[1]
+  },
+  {
+    name: randomCat(),
+    board_ids: groups[2]
+  },
+  {
+    name: randomCat(),
+    board_ids: groups[3]
+  },
+  {
+    name: randomCat(),
+    board_ids: groups[4]
+  }];
+  return categories;
+};
 
 var generateBoard = function() {
   var words = Charlatan.Lorem.words(Charlatan.Helpers.rand(8, 4));
@@ -162,7 +206,7 @@ function seedBoards(users, parentBoard, seedBoardsCallback) {
 
 function seedPosts(board, users, thread, seedPostsCallback) {
   var i = 0;
-  var postCount = Charlatan.Helpers.rand(maxPosts, 1);
+  var postCount = Charlatan.Helpers.rand(maxPosts, 10);
   async.whilst(
     function() { // generate 1 - maxPosts
       return i < postCount;
@@ -231,9 +275,20 @@ function seedTopLevelPosts(boards, users, seedTopLevelPostsCallback) {
       if (err) {
         console.log('Error generating posts.');
       }
-      seedTopLevelPostsCallback(err);
+      seedTopLevelPostsCallback(err, boards);
     }
   );
+}
+
+function seedCategories(boards, cb) {
+  var cats = generateCategories(boards);
+  boardsCore.updateCategories(cats)
+  .then(function() {
+    cb();
+  })
+  .catch(function(err) {
+    cb(err);
+  });
 }
 
 seed.seed = function() {
@@ -249,6 +304,10 @@ seed.seed = function() {
       function(boards, users, cb) {
         console.log('\nSeeding posts.');
         seedTopLevelPosts(boards, users, cb);
+      },
+      function(boards, cb) {
+        console.log('\nPushing board categories.');
+        seedCategories(boards, cb);
       }
     ],
     function (err) {
@@ -256,7 +315,7 @@ seed.seed = function() {
         console.log(err);
       }
       else {
-        console.log('\nDatabase seed complete.');
+        console.log('Database seed complete.');
       }
     }
   );

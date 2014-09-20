@@ -18,6 +18,7 @@
     "charlatan": "^0.1.9",
     "commander": "^2.3.0",
     "epochcore": "^0.5.3",
+    "lodash": "^2.4.1",
     "progress": "^1.1.8",
     "request": "^2.40.0",
     "smf-import": "git+ssh://git@github.com:epochtalk/importer-smf.git",
