@@ -73,17 +73,41 @@ var generateBoard = function() {
 };
 
 var generateUser = function() {
-  var name = Charlatan.Internet.userName();
-  var email = Charlatan.Internet.freeEmail(name);
+  var username = Charlatan.Internet.userName();
+  var email = Charlatan.Internet.freeEmail(username);
   var password = 'epochtalk';
+  var name = Charlatan.Name.firstName() + ' ' + Charlatan.Name.lastName();
+  var website = 'http://' + Charlatan.Internet.domainName();
+  var btcAddress = Charlatan.letterify(Charlatan.numerify('#??#????????#???#??????????#???##?'));
+  var gender = Charlatan.Helpers.sample(['Male', 'Female']);
+  var dob = randomDate(new Date(1970, 0, 1), new Date(2005, 0, 1)).getTime();
+  var location = Charlatan.Address.city();
+  var language = Charlatan.Helpers.sample(['English', 'Spanish', 'Korean', 'Vietnamese', 'Japanese', 'Gibberish']);
+  var signature = Charlatan.Helpers.sample([name, undefined, username]);
   var user = {
-    username: name,
-    email: email,
-    password: password,
-    confirmation: password,
+    create: {
+      username: username,
+      email: email,
+      password: password,
+      confirmation: password
+    },
+    update: {
+      name: name,
+      website: website,
+      btcAddress: btcAddress,
+      gender: gender,
+      dob: dob,
+      location: location,
+      language: language,
+      signature: signature
+    }
   };
   return user;
 };
+
+function randomDate(start, end) {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
 
 var generateThread = function(boardId) {
   var thread = {
@@ -130,11 +154,15 @@ function seedUsers(seedUsersCallback) {
     },
     function (cb) {
       var user = generateUser();
-      usersCore.create(user)
+      usersCore.create(user.create)
       .then(function(createdUser) {
-        user.id = createdUser.id;
-        process.stdout.write('Generating Users: ' + user.id + '\r');
-        users.push(user);
+        user.create.id = createdUser.id;
+        user.update.id = createdUser.id;
+        process.stdout.write('Generating Users: ' + createdUser.id + '\r');
+        users.push(user.create);
+        return usersCore.update(user.update);
+      })
+      .then(function() {
         i++;
         cb();
       });
