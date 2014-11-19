@@ -133,7 +133,7 @@ var generatePost = function(userId, previousPostTime, threadId, boardId) {
   }
   var post = {
     title: title,
-    encodedBody: body,
+    body: body,
     user_id: userId
   };
   if (boardId) {
